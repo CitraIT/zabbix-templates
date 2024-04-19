@@ -428,7 +428,8 @@ zabbix_export:
                       var input = JSON.parse(value);
                       bytes_count = 0;
                       for(var i in input["rows"]) {
-                          if("{#IPSECNAME}" == input["rows"][i]["ikeid"]) {
+                          var tunnel_id = "{#IPSECIKEID}";
+                          if( tunnel_id == input["rows"][i]["ikeid"]) {
                               bytes_count += input["rows"][i]["bytes-in"];
                           }
                       }
@@ -454,7 +455,8 @@ zabbix_export:
                       var input = JSON.parse(value);
                       bytes_count = 0;
                       for(var i in input["rows"]) {
-                          if("{#IPSECNAME}" == input["rows"][i]["ikeid"]) {
+                          var tunnel_id = "{#IPSECNAME}";
+                          if( tunnel_id == input["rows"][i]["ikeid"]) {
                               bytes_count += input["rows"][i]["bytes-out"];
                           }
                       }
@@ -479,10 +481,13 @@ zabbix_export:
                   parameters:
                     - |
                       var input = JSON.parse(value);
-                      p2_status = 1;
+                      installed = 0;
+                      installed_missing = 1;
+                      p2_status = installed_missing;
                       for(var i in input["rows"]) {
-                          if("{#IPSECNAME}" == input["rows"][i]["ikeid"]) {
-                              p2_status = input["rows"][i]["state"] == "INSTALLED" ? 0 : 1;
+                          var tunnel_id = "{#IPSECIKEID}"
+                          if(tunnel_id == input["rows"][i]["ikeid"]) {
+                              p2_status = input["rows"][i]["state"] == "INSTALLED" ? installed : installed_missing;
                           }
                       }
                       return p2_status;
@@ -530,9 +535,12 @@ zabbix_export:
                   parameters:
                     - |
                       var input = JSON.parse(value);
+                      var connected = 0;
+                      var disconnected = 1;
                       for(var i in input["rows"]) {
-                          if("{#IPSECNAME}" == input["rows"][i]["name"]){
-                              return input["rows"][i]["connected"] == true ? 0 : 1;
+                          var tunnel_id = "{#IPSECIKEID}";
+                          if( tunnel_id == input["rows"][i]["ikeid"]){
+                              return input["rows"][i]["connected"] == true ? connected  : disconnected ;
                           }
                       }
               master_item:
@@ -571,7 +579,8 @@ zabbix_export:
                   var output = {"data": new Array()};
                   for(var i in input["rows"]) {
                   	output["data"].push({
-                  		"{#IPSECNAME}": input["rows"][i]["ikeid"],
+                  		"{#IPSECNAME}": input["rows"][i]["name"],
+                  		"{#IPSECIKEID}": input["rows"][i]["ikeid"],
                   		"{#IPSECDESC}": input["rows"][i]["phase1desc"],
                   		"{#IPSECCONN}": input["rows"][i]["connected"]
                   	});
